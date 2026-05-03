@@ -32,7 +32,17 @@ SECTION A — Accounts & projects (creator only)
 
 [ ] A1. Create or open Supabase project (production).
 [ ] A2. Create or open Vercel project linked to this repo (or import Git repo).
-[ ] A3. (Optional) Register Mapbox account and create access token for the map.
+[ ] A3. Register Mapbox account and create a public access token (`pk.…`) for the map
+        (see VITE_MAPBOX_TOKEN in specs/08-deployment.md).
+        Mapbox naming (recommended): in the Mapbox dashboard, rename the token to something
+        you will recognize later, e.g. `opensos-dev-unrestricted` while developing without
+        URL restrictions. Before production, either (a) add URL restrictions to that token
+        for your real origins (https://<your-vercel-app>.vercel.app/*, custom domain, and
+        optionally http://localhost:<port>/* for local dev), or (b) create a second token
+        named e.g. `opensos-prod-restricted` with URL allowlist only, put it in Vercel env,
+        and keep the dev token for local `.env` only.
+[ ] A4. (Before first prod deploy) Harden Mapbox token: URL restrictions on the token used
+        in Vercel (see A3). Do not use secret scopes on any token that lives in VITE_*.
 
 Agent can verify (after you say it is done):
 [ ] AV-A1. Agent confirms Supabase URL + anon key are NOT committed; only .env.local / Vercel.
@@ -74,6 +84,8 @@ SECTION D — Secrets hygiene (creator responsibility)
 
 [ ] D1. Never commit .env or service_role key; keep service role only in Supabase dashboard.
 [ ] D2. Rotate any token that was ever pasted into chat by mistake.
+[ ] D3. Mapbox: token names and restrictions match intent (dev vs prod); production token
+        is not left indefinitely without URL restrictions once the app URL is known.
 
 Agent can verify:
 [ ] AV-D1. Agent greps repo for accidental keys (service_role, sk., etc.) — should report clean.
@@ -106,7 +118,7 @@ Agent can verify (after automated or scripted checks if added later):
 Progress log (append one line per milestone — anyone)
 ================================================================================
 Format: YYYY-MM-DD | who (creator/agent) | what was verified or done
-- (none yet)
+- 2026-05-03 | agent | CREATOR_ROADMAP: Mapbox guidance — rename token in dashboard (e.g. opensos-dev-unrestricted), optional second prod token with URL allowlist, checklist A4 + D3 before prod.
 
 
 ================================================================================

@@ -26,9 +26,9 @@ Phase 0 — Prep (1–2 prompts)
 Phase 1 — Frontend skeleton + operational map (Vercel-ready)
 -------------------------------------------------------------
 [x] Prompt: "Bootstrap frontend per specs/06-frontend-architecture.md: Vite+TS+Tailwind, folder structure, Mapbox setup."
-[ ] Prompt: "Implement `/` Map screen with clustering, bbox loading, debounce/cancel and v1 filters per specs/03-map-spec.md."
+[x] Prompt: "Implement `/` Map screen with clustering, bbox loading, debounce/cancel and v1 filters per specs/03-map-spec.md."
 [ ] Prompt: "Add pin detail modal UI (read-only first) consuming GET /pins/:id."
-      (Current code: `/` shows Mapbox or placeholder only; `/pins/:id` is a separate placeholder page, not a modal, and does not call GET /pins/:id yet.)
+      (Current code: `/pins/:id` is a separate placeholder page, not a modal, and does not call GET /pins/:id yet. Map popup currently navigates to that placeholder.)
 
 Phase 2 — Domain + typed API layer (avoid breakage)
 ----------------------------------------------------
@@ -77,3 +77,4 @@ Progress log (append one line per phase or milestone)
 Format: YYYY-MM-DD | Phase | what was verified (agent/creator)
 - 2026-05-02 | Phase 1 (partial) | agent: Bootstrap done — Vite+TS+Tailwind, folder layout per specs/06, Mapbox deps + `mountMapPlaceholder` (token gate), router `/` `/pins/new` `/pins/:id` `/auth`, `npm run build` OK. NOT done: operational map per specs/03 (clustering, bbox, debounce, filters), pin detail modal + GET /pins/:id.
 - 2026-05-02 | Phase 2 (partial) | agent: Minimal types in `src/domain/types.ts`; `src/api/pins.ts` stub only — full Phase 2 still open.
+- 2026-05-03 | Phase 1 | agent: Operational map per specs/03 — Mapbox streets-v12, geolocation→Madrid fallback, clustered GeoJSON source (radius 50, clusterMaxZoom 14), v1 filters (type + 3 status toggles) wired to bbox fetch, 400ms debounced moveend with AbortController cancel, loading/empty/error overlays + retry, pin popup → /pins/:id (modal swap pending next prompt). `npm run build` OK.
