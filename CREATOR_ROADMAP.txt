@@ -1,0 +1,116 @@
+Creator roadmap — manual steps + progress tracking
+====================================================
+
+Purpose
+-------
+This file lists what YOU (the project owner) must do outside the repo:
+Supabase/Vercel dashboards, secrets, and final approval. The coding agent
+can mark "agent verified" items after checking the codebase or a successful
+local/build check — but only YOU can complete dashboard/account steps.
+
+How to use checkboxes (creator + agent)
+-----------------------------------------
+- [ ] = not done   |   [x] = done
+- Creator-only lines (Sections A–F, except "Agent can verify" rows):
+    Mark [x] ONLY after you completed the step in the real dashboard / account.
+- "Agent can verify" rows:
+    Agent may mark [x] after confirming the claim in the repo or a clean build,
+    NEVER as a substitute for a creator step.
+- Append one line to "Progress log" with date | who | what was done.
+- Optional inline date next to a checkbox, e.g. [x] 2026-05-02
+
+Cross-reference
+-----------------
+- Coding phases: AGENT_ROADMAP.txt
+- Deploy env vars: specs/08-deployment.md
+- Security/RLS intent: specs/10-rls-policies.md
+
+
+================================================================================
+SECTION A — Accounts & projects (creator only)
+================================================================================
+
+[ ] A1. Create or open Supabase project (production).
+[ ] A2. Create or open Vercel project linked to this repo (or import Git repo).
+[ ] A3. (Optional) Register Mapbox account and create access token for the map.
+
+Agent can verify (after you say it is done):
+[ ] AV-A1. Agent confirms Supabase URL + anon key are NOT committed; only .env.local / Vercel.
+
+
+================================================================================
+SECTION B — Supabase dashboard (creator runs migrations / settings)
+================================================================================
+
+[ ] B1. Enable PostGIS extension on the database (if not already).
+[ ] B2. Apply SQL migrations the agent provides (schema per specs/11-db-schema-reference.md).
+[ ] B3. Apply RLS policies the agent provides (specs/10-rls-policies.md).
+[ ] B4. Configure Auth provider for MVP (email/password OR magic link — pick one).
+[ ] B5. Set allowed redirect URLs / Site URL for your Vercel domain (when known).
+[ ] B6. Configure CORS / allowed origins for your production frontend URL.
+
+Agent can verify:
+[ ] AV-B1. Agent runs or documents `npm run build` against repo with your .env (you paste locally, never commit).
+[ ] AV-B2. Agent confirms RLS is ON for public tables before any sensitive data.
+
+
+================================================================================
+SECTION C — Vercel / hosting (creator)
+================================================================================
+
+[ ] C1. Add environment variables in Vercel project settings:
+        VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_MAPBOX_TOKEN
+        (see specs/08-deployment.md)
+[ ] C2. Trigger first production deploy (or connect Git auto-deploy).
+[ ] C3. (Optional) Attach custom domain; update Supabase Auth URLs accordingly.
+
+Agent can verify:
+[ ] AV-C1. Agent confirms README and .env.example list all required VITE_* vars.
+
+
+================================================================================
+SECTION D — Secrets hygiene (creator responsibility)
+================================================================================
+
+[ ] D1. Never commit .env or service_role key; keep service role only in Supabase dashboard.
+[ ] D2. Rotate any token that was ever pasted into chat by mistake.
+
+Agent can verify:
+[ ] AV-D1. Agent greps repo for accidental keys (service_role, sk., etc.) — should report clean.
+
+
+================================================================================
+SECTION E — Product / legal (creator judgment)
+================================================================================
+
+[ ] E1. Confirm public read of pins/events/matches is acceptable for v1 (per specs/05-api-contracts.md).
+[ ] E2. Decide MVP auth method if not already fixed (email vs magic link).
+
+Agent can verify:
+[ ] AV-E1. Agent confirms UI matches chosen auth method only (no dual path unless requested).
+
+
+================================================================================
+SECTION F — Go-live smoke test (creator in browser)
+================================================================================
+
+[ ] F1. Open production URL; map loads or shows clear placeholder if token missing.
+[ ] F2. Sign in works (after Auth configured).
+[ ] F3. Create pin → appears on map → open detail → create match (happy path).
+
+Agent can verify (after automated or scripted checks if added later):
+[ ] AV-F1. Agent documents steps from specs/13-seed-data-and-demo-scenario.md match current UI.
+
+
+================================================================================
+Progress log (append one line per milestone — anyone)
+================================================================================
+Format: YYYY-MM-DD | who (creator/agent) | what was verified or done
+- (none yet)
+
+
+================================================================================
+Sync with AGENT_ROADMAP.txt
+================================================================================
+When a Phase in AGENT_ROADMAP.txt is fully [x], revisit Sections B–F here if
+new manual steps appeared (e.g. new env vars, new Edge Function secrets).

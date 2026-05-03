@@ -1,0 +1,79 @@
+Agent-first roadmap (copy/paste prompts + progress)
+====================================================
+
+How to use checkboxes (agent + creator)
+---------------------------------------
+- [ ] = not done   |   [x] = done
+- A line is marked [x] only when ALL of these are true:
+    1. The code (or doc artifact) for that prompt exists in the repo.
+    2. `npm run build` is green locally.
+    3. The behavior matches the referenced spec — not just "imports compile".
+- Agent: only marks [x] in this file (coding prompts).
+- Creator: validates in browser / production and appends a line to "Progress log".
+- Partial work stays [ ]; add a one-line note under the prompt to describe what is missing.
+
+Cross-reference
+---------------
+- Owner / dashboard steps: CREATOR_ROADMAP.txt
+- Specs: specs/
+
+
+Phase 0 — Prep (1–2 prompts)
+----------------------------
+[ ] Prompt: "Read specs/ and produce a v1 implementation plan with deliverables split into small PRs (frontend, DB schema, RLS, API wiring)."
+[ ] Prompt: "Create a Definition of Done checklist per feature: map, create pin, pin detail, matching."
+
+Phase 1 — Frontend skeleton + operational map (Vercel-ready)
+-------------------------------------------------------------
+[x] Prompt: "Bootstrap frontend per specs/06-frontend-architecture.md: Vite+TS+Tailwind, folder structure, Mapbox setup."
+[ ] Prompt: "Implement `/` Map screen with clustering, bbox loading, debounce/cancel and v1 filters per specs/03-map-spec.md."
+[ ] Prompt: "Add pin detail modal UI (read-only first) consuming GET /pins/:id."
+      (Current code: `/` shows Mapbox or placeholder only; `/pins/:id` is a separate placeholder page, not a modal, and does not call GET /pins/:id yet.)
+
+Phase 2 — Domain + typed API layer (avoid breakage)
+----------------------------------------------------
+[ ] Prompt: "Define TS types in src/domain/ matching specs/02-data-model.md and specs/05-api-contracts.md (Pin, PinItem, Match, MatchItem, Event)."
+      (Partial bootstrap only: `src/domain/types.ts` has PinListItem, PinItem, MatchSummary, EmergencyEvent — still need full Pin detail, Match, MatchItem, etc.)
+[ ] Prompt: "Implement src/api/ typed client functions for the endpoints in specs/05-api-contracts.md."
+      (`src/api/pins.ts` is a stub returning []; no wired GET/POST/PATCH clients yet.)
+
+Phase 3 — Auth (minimum viable)
+--------------------------------
+[ ] Prompt: "Implement /auth using Supabase Auth (pick ONE MVP method), persist session, add simple route guards."
+[ ] Prompt: "Gate/hide actions in UI according to specs/01-user-roles-and-permissions.md."
+
+Phase 4 — Create pin (need/offer)
+---------------------------------
+[ ] Prompt: "Implement /pins/new with form + map location picker + items list; call POST /pins."
+[ ] Prompt: "After create, redirect to /pins/:id and refresh the map."
+
+Phase 5 — Matching + partial progress (core)
+---------------------------------------------
+[ ] Prompt: "In pin detail, implement Create match (POST /matches) and Update match status (PATCH /matches/:id)."
+[ ] Prompt: "Compute and render per-item coverage using GET /pins/:id/matches (rules in specs/02-data-model.md)."
+[ ] Prompt: "Show is_being_handled and active_match_count from match_summary."
+
+Phase 6 — Reports + minimal moderation
+---------------------------------------
+[ ] Prompt: "Add 'Report pin' action (POST /reports) in the pin detail modal."
+[ ] Prompt (optional v1): "If admin-only view is desired, add a minimal reports list screen (only if we expose it)."
+
+Phase 7 — Supabase backend as code (prepare now, execute later)
+----------------------------------------------------------------
+[ ] Prompt: "Generate SQL migrations for tables/indices per specs/11-db-schema-reference.md."
+[ ] Prompt: "Generate RLS policies (SQL) based on specs/10-rls-policies.md."
+[ ] Prompt: "Ensure PostGIS + indexes (pins.location GIST, pins(event_id,status)). Add minimal helper functions only if needed for POST /events."
+
+Phase 8 — End-to-end demo validation
+-------------------------------------
+[ ] Prompt: "Provide a repeatable E2E validation using specs/13-seed-data-and-demo-scenario.md and verify map → detail → match → partial fulfillment."
+
+Execution tip
+-------------
+Ask the agent to work in small, reviewable PRs (map → auth → create pin → matching) so each step is testable and deployable without blocking.
+
+Progress log (append one line per phase or milestone)
+-----------------------------------------------------
+Format: YYYY-MM-DD | Phase | what was verified (agent/creator)
+- 2026-05-02 | Phase 1 (partial) | agent: Bootstrap done — Vite+TS+Tailwind, folder layout per specs/06, Mapbox deps + `mountMapPlaceholder` (token gate), router `/` `/pins/new` `/pins/:id` `/auth`, `npm run build` OK. NOT done: operational map per specs/03 (clustering, bbox, debounce, filters), pin detail modal + GET /pins/:id.
+- 2026-05-02 | Phase 2 (partial) | agent: Minimal types in `src/domain/types.ts`; `src/api/pins.ts` stub only — full Phase 2 still open.

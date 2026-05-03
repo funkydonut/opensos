@@ -1,0 +1,24 @@
+{
+  "name": "opensos",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/mapbox-gl": "^3.4.1",
+    "@types/node": "^22.10.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "~5.6.3",
+    "vite": "^6.0.3"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.10",
+    "mapbox-gl": "^3.8.0"
+  }
+}
