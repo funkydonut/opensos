@@ -1,6 +1,13 @@
+import { getAuthState } from "../auth/state";
 import { navigate } from "../utils/router";
 
 export function renderPinsNewScreen(root: HTMLElement): void {
+  const auth = getAuthState();
+  if (!auth.user) {
+    navigate("/auth");
+    return;
+  }
+
   root.className = "flex min-h-screen flex-col gap-4 bg-slate-50 p-4";
   root.innerHTML = `
     <div class="mx-auto w-full max-w-lg rounded border border-slate-200 bg-white p-4 shadow-sm">

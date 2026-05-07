@@ -5,6 +5,7 @@ import {
 } from "../components/MapFilters";
 import { mountPinDetailModal } from "../components/PinDetailModal";
 import { mountHomeMap, type HomeMapStatus } from "../map/homeMap";
+import { getAuthState, onAuthStateChange, signOut } from "../auth/state";
 import { navigate } from "../utils/router";
 
 export function renderHomeScreen(root: HTMLElement): () => void {
@@ -13,19 +14,40 @@ export function renderHomeScreen(root: HTMLElement): () => void {
   const top = document.createElement("header");
   top.className =
     "flex shrink-0 items-center justify-between gap-2 border-b border-slate-200 bg-white px-3 py-2 text-sm";
-  top.innerHTML = `
-    <span class="font-semibold text-slate-800">OpenSOS</span>
-    <nav class="flex flex-wrap items-center gap-2">
-      <button type="button" data-nav="/pins/new" class="rounded bg-slate-900 px-2 py-1 text-white hover:bg-slate-800">New pin</button>
-      <button type="button" data-nav="/auth" class="rounded border border-slate-300 px-2 py-1 hover:bg-slate-50">Sign in</button>
-    </nav>
-  `;
-  top.querySelectorAll<HTMLButtonElement>("button[data-nav]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const path = btn.getAttribute("data-nav");
-      if (path) navigate(path);
+  root.appendChild(top);
+
+  const renderNav = () => {
+    const auth = getAuthState();
+    const isLoggedIn = !!auth.user;
+
+    top.innerHTML = `
+      <span class="font-semibold text-slate-800">OpenSOS</span>
+      <nav class="flex flex-wrap items-center gap-2">
+        ${isLoggedIn ? `<button type="button" data-nav="/pins/new" class="rounded bg-slate-900 px-2 py-1 text-white hover:bg-slate-800">New pin</button>` : ""}
+        ${
+          isLoggedIn
+            ? `<span class="text-xs text-slate-500">${esc(auth.user!.email ?? "")}</span>
+               ${auth.role ? `<span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">${esc(auth.role)}</span>` : ""}
+               <button type="button" data-signout class="rounded border border-slate-300 px-2 py-1 hover:bg-slate-50">Sign out</button>`
+            : `<button type="button" data-nav="/auth" class="rounded border border-slate-300 px-2 py-1 hover:bg-slate-50">Sign in</button>`
+        }
+      </nav>
+    `;
+
+    top.querySelectorAll<HTMLButtonElement>("button[data-nav]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const path = btn.getAttribute("data-nav");
+        if (path) navigate(path);
+      });
     });
-  });
+
+    top
+      .querySelector<HTMLButtonElement>("button[data-signout]")
+      ?.addEventListener("click", () => void signOut());
+  };
+
+  renderNav();
+  const unsubAuth = onAuthStateChange(() => renderNav());
 
   const filtersBar = document.createElement("div");
 
@@ -53,7 +75,7 @@ export function renderHomeScreen(root: HTMLElement): () => void {
   `;
   mapWrap.appendChild(errorOverlay);
 
-  root.append(top, filtersBar, mapWrap);
+  root.append(filtersBar, mapWrap);
 
   const pinModal = mountPinDetailModal(root);
 
@@ -81,6 +103,7 @@ export function renderHomeScreen(root: HTMLElement): () => void {
   });
 
   return () => {
+    unsubAuth();
     teardownFilters();
     handle.destroy();
     pinModal.destroy();
@@ -117,4 +140,12 @@ function applyStatus(
       errorEl.classList.remove("flex");
       break;
   }
+}
+
+function esc(s: string): string {
+  return s
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }

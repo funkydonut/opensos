@@ -45,7 +45,7 @@ SECTION A — Accounts & projects (creator only)
         in Vercel (see A3). Do not use secret scopes on any token that lives in VITE_*.
 
 Agent can verify (after you say it is done):
-[ ] AV-A1. Agent confirms Supabase URL + anon key are NOT committed; only .env.local / Vercel.
+[x] AV-A1. Agent confirms Supabase URL + anon key are NOT committed; only .env.local / Vercel.
 
 
 ================================================================================
@@ -60,8 +60,8 @@ SECTION B — Supabase dashboard (creator runs migrations / settings)
 [ ] B6. Configure CORS / allowed origins for your production frontend URL.
 
 Agent can verify:
-[ ] AV-B1. Agent runs or documents `npm run build` against repo with your .env (you paste locally, never commit).
-[ ] AV-B2. Agent confirms RLS is ON for public tables before any sensitive data.
+[x] AV-B1. Agent runs or documents `npm run build` against repo with your .env (you paste locally, never commit).
+[x] AV-B2. Agent confirms RLS is ON for public tables before any sensitive data.
 
 
 ================================================================================
@@ -88,7 +88,7 @@ SECTION D — Secrets hygiene (creator responsibility)
         is not left indefinitely without URL restrictions once the app URL is known.
 
 Agent can verify:
-[ ] AV-D1. Agent greps repo for accidental keys (service_role, sk., etc.) — should report clean.
+[x] AV-D1. Agent greps repo for accidental keys (service_role, sk., etc.) — report clean.
 
 
 ================================================================================
@@ -99,7 +99,7 @@ SECTION E — Product / legal (creator judgment)
 [ ] E2. Decide MVP auth method if not already fixed (email vs magic link).
 
 Agent can verify:
-[ ] AV-E1. Agent confirms UI matches chosen auth method only (no dual path unless requested).
+[x] AV-E1. Agent confirms UI matches chosen auth method only (email+password, no dual path).
 
 
 ================================================================================
@@ -119,6 +119,8 @@ Progress log (append one line per milestone — anyone)
 ================================================================================
 Format: YYYY-MM-DD | who (creator/agent) | what was verified or done
 - 2026-05-03 | agent | CREATOR_ROADMAP: Mapbox guidance — rename token in dashboard (e.g. opensos-dev-unrestricted), optional second prod token with URL allowlist, checklist A4 + D3 before prod.
+- 2026-05-07 | agent | AV-A1 verified: no secrets in repo. AV-B1: build green. AV-B2: RLS enabled on all public tables (migration applied). AV-D1: grep clean. AV-E1: auth is email+password only.
+- 2026-05-07 | agent | Phase 3 auth implemented: /auth screen (sign in/up), session persistence, nav bar auth-aware, route guard on /pins/new.
 
 
 ================================================================================

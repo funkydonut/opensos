@@ -1,7 +1,10 @@
+import { initAuth } from "./auth/state";
 import { createRouter } from "./utils/router";
 import { renderRoute } from "./utils/render";
 
 export function bootstrap(): void {
+  initAuth();
+
   const router = createRouter({
     onRoute: (route) => {
       renderRoute(route);
