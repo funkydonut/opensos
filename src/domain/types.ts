@@ -1,4 +1,4 @@
-/** Minimal domain shapes aligned with specs/05-api-contracts.md (extend in Phase 2). */
+/** Domain types aligned with specs/02-data-model.md + specs/05-api-contracts.md. */
 
 export type PinType = "need" | "offer";
 
@@ -11,12 +11,20 @@ export type PinStatus =
   | "expired"
   | "flagged";
 
+export type MatchStatus =
+  | "proposed"
+  | "confirmed"
+  | "in_transit"
+  | "delivered"
+  | "cancelled";
+
 export interface PinItem {
   id: string;
   name: string;
   quantity: number;
   unit: string;
-  priority?: string;
+  priority?: "low" | "normal" | "high" | null;
+  notes?: string | null;
 }
 
 export interface MatchSummary {
@@ -24,6 +32,7 @@ export interface MatchSummary {
   is_being_handled: boolean;
 }
 
+/** Shape returned by `pins_in_bbox` RPC (map list view). */
 export interface PinListItem {
   id: string;
   type: PinType;
@@ -35,9 +44,44 @@ export interface PinListItem {
   match_summary?: MatchSummary;
 }
 
+/** Shape returned by `pin_detail` RPC (detail view). */
+export interface PinDetail {
+  id: string;
+  event_id: string | null;
+  type: PinType;
+  status: PinStatus;
+  title: string;
+  description: string | null;
+  lat: number;
+  lng: number;
+  expires_at: string | null;
+  organization_id: string | null;
+  items: PinItem[];
+  match_summary: MatchSummary;
+}
+
 export interface EmergencyEvent {
   id: string;
   name: string;
-  region: string;
+  region: string | null;
   is_active: boolean;
+}
+
+export interface Match {
+  id: string;
+  need_pin_id: string;
+  offer_pin_id: string;
+  status: MatchStatus;
+  created_by_user_id: string;
+  note: string | null;
+  created_at: string;
+}
+
+export interface MatchItem {
+  id: string;
+  pin_match_id: string;
+  need_pin_item_id: string;
+  offer_pin_item_id: string | null;
+  quantity: number;
+  unit: string;
 }

@@ -27,15 +27,13 @@ Phase 1 — Frontend skeleton + operational map (Vercel-ready)
 -------------------------------------------------------------
 [x] Prompt: "Bootstrap frontend per specs/06-frontend-architecture.md: Vite+TS+Tailwind, folder structure, Mapbox setup."
 [x] Prompt: "Implement `/` Map screen with clustering, bbox loading, debounce/cancel and v1 filters per specs/03-map-spec.md."
-[ ] Prompt: "Add pin detail modal UI (read-only first) consuming GET /pins/:id."
-      (Current code: `/pins/:id` is a separate placeholder page, not a modal, and does not call GET /pins/:id yet. Map popup currently navigates to that placeholder.)
+[x] Prompt: "Add pin detail modal UI (read-only first) consuming GET /pins/:id."
 
 Phase 2 — Domain + typed API layer (avoid breakage)
 ----------------------------------------------------
-[ ] Prompt: "Define TS types in src/domain/ matching specs/02-data-model.md and specs/05-api-contracts.md (Pin, PinItem, Match, MatchItem, Event)."
-      (Partial bootstrap only: `src/domain/types.ts` has PinListItem, PinItem, MatchSummary, EmergencyEvent — still need full Pin detail, Match, MatchItem, etc.)
-[ ] Prompt: "Implement src/api/ typed client functions for the endpoints in specs/05-api-contracts.md."
-      (`src/api/pins.ts` is a stub returning []; no wired GET/POST/PATCH clients yet.)
+[x] Prompt: "Define TS types in src/domain/ matching specs/02-data-model.md and specs/05-api-contracts.md (Pin, PinItem, Match, MatchItem, Event)."
+[x] Prompt: "Implement src/api/ typed client functions for the endpoints in specs/05-api-contracts.md."
+      (Read endpoints wired via supabase.rpc; write endpoints land in Phase 4/5.)
 
 Phase 3 — Auth (minimum viable)
 --------------------------------
@@ -60,9 +58,9 @@ Phase 6 — Reports + minimal moderation
 
 Phase 7 — Supabase backend as code (prepare now, execute later)
 ----------------------------------------------------------------
-[ ] Prompt: "Generate SQL migrations for tables/indices per specs/11-db-schema-reference.md."
-[ ] Prompt: "Generate RLS policies (SQL) based on specs/10-rls-policies.md."
-[ ] Prompt: "Ensure PostGIS + indexes (pins.location GIST, pins(event_id,status)). Add minimal helper functions only if needed for POST /events."
+[x] Prompt: "Generate SQL migrations for tables/indices per specs/11-db-schema-reference.md."
+[x] Prompt: "Generate RLS policies (SQL) based on specs/10-rls-policies.md."
+[x] Prompt: "Ensure PostGIS + indexes (pins.location GIST, pins(event_id,status)). Add minimal helper functions only if needed for POST /events."
 
 Phase 8 — End-to-end demo validation
 -------------------------------------
@@ -78,3 +76,5 @@ Format: YYYY-MM-DD | Phase | what was verified (agent/creator)
 - 2026-05-02 | Phase 1 (partial) | agent: Bootstrap done — Vite+TS+Tailwind, folder layout per specs/06, Mapbox deps + `mountMapPlaceholder` (token gate), router `/` `/pins/new` `/pins/:id` `/auth`, `npm run build` OK. NOT done: operational map per specs/03 (clustering, bbox, debounce, filters), pin detail modal + GET /pins/:id.
 - 2026-05-02 | Phase 2 (partial) | agent: Minimal types in `src/domain/types.ts`; `src/api/pins.ts` stub only — full Phase 2 still open.
 - 2026-05-03 | Phase 1 | agent: Operational map per specs/03 — Mapbox streets-v12, geolocation→Madrid fallback, clustered GeoJSON source (radius 50, clusterMaxZoom 14), v1 filters (type + 3 status toggles) wired to bbox fetch, 400ms debounced moveend with AbortController cancel, loading/empty/error overlays + retry, pin popup → /pins/:id (modal swap pending next prompt). `npm run build` OK.
+- 2026-05-07 | Phase 7 | agent: SQL migrations in supabase/migrations/ — schema (tables+indexes+triggers+auth bootstrap), RLS policies, RPC helpers (pins_in_bbox, pin_detail, pin_match_summary). Applied to Supabase.
+- 2026-05-07 | Phase 2 + Phase 1 (remaining) | agent: Full domain types (PinDetail, Match, MatchItem). API wired to supabase.rpc (pins_in_bbox, pin_detail). Pin detail slide-over modal on home screen (read-only). `npm run build` OK.

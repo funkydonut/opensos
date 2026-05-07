@@ -3,6 +3,7 @@ import {
   type MapFiltersState,
   mountMapFilters,
 } from "../components/MapFilters";
+import { mountPinDetailModal } from "../components/PinDetailModal";
 import { mountHomeMap, type HomeMapStatus } from "../map/homeMap";
 import { navigate } from "../utils/router";
 
@@ -54,6 +55,8 @@ export function renderHomeScreen(root: HTMLElement): () => void {
 
   root.append(top, filtersBar, mapWrap);
 
+  const pinModal = mountPinDetailModal(root);
+
   let currentFilters: MapFiltersState = { ...DEFAULT_FILTERS };
 
   const handle = mountHomeMap(mapHost, {
@@ -61,6 +64,7 @@ export function renderHomeScreen(root: HTMLElement): () => void {
     onStatusChange: (status) => {
       applyStatus(status, statusOverlay, errorOverlay);
     },
+    onPinOpen: (pinId) => pinModal.open(pinId),
   });
 
   errorOverlay.querySelector<HTMLButtonElement>("button[data-retry]")?.addEventListener(
@@ -79,6 +83,7 @@ export function renderHomeScreen(root: HTMLElement): () => void {
   return () => {
     teardownFilters();
     handle.destroy();
+    pinModal.destroy();
   };
 }
 

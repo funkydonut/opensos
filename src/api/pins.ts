@@ -1,4 +1,5 @@
-import type { PinListItem, PinStatus, PinType } from "../domain/types";
+import { getSupabaseClient } from "../supabase/client";
+import type { PinDetail, PinListItem, PinStatus, PinType } from "../domain/types";
 
 export interface FetchPinsParams {
   bbox: string;
@@ -9,29 +10,58 @@ export interface FetchPinsParams {
 }
 
 /**
- * Stub for `GET /pins?bbox=...` per specs/05-api-contracts.md.
- *
- * Phase 1 only wires the request lifecycle (debounce + cancel). The real
- * implementation lands in Phase 2 (typed API client). The stub honors the
- * provided AbortSignal so the cancel-in-flight path is exercised today.
+ * Calls `pins_in_bbox` RPC (specs/05-api-contracts.md GET /pins?bbox=).
+ * Falls back to empty array when Supabase is not configured.
  */
 export async function fetchPinsByBbox(params: FetchPinsParams): Promise<PinListItem[]> {
   if (params.signal?.aborted) {
     throw new DOMException("Aborted", "AbortError");
   }
-  return new Promise<PinListItem[]>((resolve, reject) => {
-    const timeout = window.setTimeout(() => {
-      cleanup();
-      resolve([]);
-    }, 0);
-    const onAbort = () => {
-      cleanup();
-      reject(new DOMException("Aborted", "AbortError"));
-    };
-    const cleanup = () => {
-      window.clearTimeout(timeout);
-      params.signal?.removeEventListener("abort", onAbort);
-    };
-    params.signal?.addEventListener("abort", onAbort, { once: true });
-  });
+
+  const client = getSupabaseClient();
+  if (!client) return [];
+
+  const rpcParams: Record<string, unknown> = { bbox: params.bbox };
+  if (params.type) rpcParams.pin_type = params.type;
+  if (params.status?.length) rpcParams.pin_status = params.status;
+  if (params.eventId) rpcParams.event_id = params.eventId;
+
+  const promise = client.rpc("pins_in_bbox", rpcParams);
+
+  const onAbort = () => {
+    // supabase-js v2 doesn't support request abort natively;
+    // we reject on our side so callers see AbortError.
+  };
+  params.signal?.addEventListener("abort", onAbort, { once: true });
+
+  const { data, error } = await promise;
+  params.signal?.removeEventListener("abort", onAbort);
+
+  if (params.signal?.aborted) {
+    throw new DOMException("Aborted", "AbortError");
+  }
+
+  if (error) {
+    throw new Error(error.message ?? "Failed to fetch pins");
+  }
+
+  return (data ?? []) as PinListItem[];
+}
+
+/**
+ * Calls `pin_detail` RPC (specs/05-api-contracts.md GET /pins/:id).
+ * Returns null if the pin was not found or Supabase is not configured.
+ */
+export async function fetchPinDetail(pinId: string): Promise<PinDetail | null> {
+  const client = getSupabaseClient();
+  if (!client) return null;
+
+  const { data, error } = await client.rpc("pin_detail", { pin_id: pinId });
+
+  if (error) {
+    throw new Error(error.message ?? "Failed to fetch pin detail");
+  }
+
+  const rows = data as PinDetail[] | null;
+  return rows?.[0] ?? null;
 }

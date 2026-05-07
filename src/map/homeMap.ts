@@ -40,6 +40,7 @@ export interface HomeMapHandle {
 export interface MountHomeMapOptions {
   initialFilters: MapFiltersState;
   onStatusChange: (status: HomeMapStatus) => void;
+  onPinOpen?: (pinId: string) => void;
 }
 
 /**
@@ -55,7 +56,7 @@ export interface MountHomeMapOptions {
  */
 export function mountHomeMap(
   container: HTMLElement,
-  { initialFilters, onStatusChange }: MountHomeMapOptions
+  { initialFilters, onStatusChange, onPinOpen }: MountHomeMapOptions
 ): HomeMapHandle {
   const token = import.meta.env.VITE_MAPBOX_TOKEN?.trim() ?? "";
   if (!token) {
@@ -230,7 +231,11 @@ export function mountHomeMap(
     btn?.addEventListener("click", () => {
       if (!pinId) return;
       popup.remove();
-      navigate(`/pins/${pinId}`);
+      if (onPinOpen) {
+        onPinOpen(pinId);
+      } else {
+        navigate(`/pins/${pinId}`);
+      }
     });
   };
 
