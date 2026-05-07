@@ -4,6 +4,7 @@ import {
   signInWithEmail,
   signUpWithEmail,
 } from "../auth/state";
+import { _debugEnvInfo } from "../supabase/client";
 import { navigate } from "../utils/router";
 
 export function renderAuthScreen(root: HTMLElement): () => void {
@@ -52,6 +53,7 @@ export function renderAuthScreen(root: HTMLElement): () => void {
       <div class="mt-3 text-center">
         <button type="button" data-nav="/" class="text-xs text-slate-400 hover:text-slate-600">Back to map</button>
       </div>
+      <pre data-debug class="mt-4 overflow-x-auto rounded bg-slate-100 p-2 text-[10px] text-slate-500 break-all">${_debugEnvInfo()}</pre>
     `;
 
     card
