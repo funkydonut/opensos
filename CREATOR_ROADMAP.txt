@@ -32,7 +32,7 @@ SECTION A — Accounts & projects (creator only)
 
 [ ] A1. Create or open Supabase project (production).
 [ ] A2. Create or open Vercel project linked to this repo (or import Git repo).
-[ ] A3. Register Mapbox account and create a public access token (`pk.…`) for the map
+[x] A3. Register Mapbox account and create a public access token (`pk.…`) for the map
         (see VITE_MAPBOX_TOKEN in specs/08-deployment.md).
         Mapbox naming (recommended): in the Mapbox dashboard, rename the token to something
         you will recognize later, e.g. `opensos-dev-unrestricted` while developing without
