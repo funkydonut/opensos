@@ -22,13 +22,13 @@ export function renderRoute(route: RouteInfo): void {
       lastTeardown = renderHomeScreen(root);
       break;
     case "pinsNew":
-      renderPinsNewScreen(root);
+      lastTeardown = renderPinsNewScreen(root) ?? undefined;
       break;
     case "pinDetail":
       renderPinDetailScreen(root, route.id);
       break;
     case "auth":
-      renderAuthScreen(root);
+      lastTeardown = renderAuthScreen(root);
       break;
     case "notFound":
       renderNotFound(root, route.path);

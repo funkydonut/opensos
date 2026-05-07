@@ -42,8 +42,8 @@ Phase 3 — Auth (minimum viable)
 
 Phase 4 — Create pin (need/offer)
 ---------------------------------
-[ ] Prompt: "Implement /pins/new with form + map location picker + items list; call POST /pins."
-[ ] Prompt: "After create, redirect to /pins/:id and refresh the map."
+[x] Prompt: "Implement /pins/new with form + map location picker + items list; call POST /pins."
+[x] Prompt: "After create, redirect to /pins/:id and refresh the map."
 
 Phase 5 — Matching + partial progress (core)
 ---------------------------------------------
@@ -79,3 +79,4 @@ Format: YYYY-MM-DD | Phase | what was verified (agent/creator)
 - 2026-05-07 | Phase 7 | agent: SQL migrations in supabase/migrations/ — schema (tables+indexes+triggers+auth bootstrap), RLS policies, RPC helpers (pins_in_bbox, pin_detail, pin_match_summary). Applied to Supabase.
 - 2026-05-07 | Phase 2 + Phase 1 (remaining) | agent: Full domain types (PinDetail, Match, MatchItem). API wired to supabase.rpc (pins_in_bbox, pin_detail). Pin detail slide-over modal on home screen (read-only). `npm run build` OK.
 - 2026-05-07 | Phase 3 | agent: Auth email+password via Supabase — src/auth/state.ts (session+role), /auth screen (sign in/up forms), session persistence via onAuthStateChange, nav bar shows user email+role+sign out when logged in, "New pin" hidden for anonymous, /pins/new redirects to /auth if not logged in. `npm run build` OK.
+- 2026-05-07 | Phase 4 | agent: Create pin screen — /pins/new with type/title/description form, Mapbox location picker with marker, dynamic items list, POST /pins via supabase-js (insert pins + pin_items). After create redirects to /pins/:id. Auth guard on route. `npm run build` OK.
