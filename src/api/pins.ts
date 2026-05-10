@@ -74,9 +74,17 @@ export async function fetchPinsByBbox(params: FetchPinsParams): Promise<PinListI
   };
   params.signal?.addEventListener("abort", onAbort, { once: true });
 
+  // #region agent log
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error("[opensos:debug] RPC TIMEOUT after 8s")), 8000);
+  });
+  // #endregion
+
   let data: unknown, error: { message?: string; code?: string; details?: string; hint?: string } | null;
   try {
-    const res = await promise;
+    // #region agent log
+    const res = await Promise.race([promise, timeoutPromise]) as { data: unknown; error: typeof error };
+    // #endregion
     data = res.data;
     error = res.error;
   } catch (e) {

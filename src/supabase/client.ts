@@ -8,13 +8,34 @@ let cached: SupabaseClient | null | undefined;
  * due to auth token refresh steal cascades in supabase-js.
  */
 const _locks: Record<string, Promise<unknown>> = {};
+let _lockSeq = 0;
 function processLock<R>(
   name: string,
   _acquireTimeout: number,
   fn: () => Promise<R>,
 ): Promise<R> {
+  const id = ++_lockSeq;
+  // #region agent log
+  console.log("[opensos:debug] lock REQUEST", { id, name, hasPrev: !!_locks[name] });
+  // #endregion
   const prev = _locks[name] ?? Promise.resolve();
-  const current = prev.catch(() => {}).then(() => fn());
+  const current = prev.catch(() => {}).then(async () => {
+    // #region agent log
+    console.log("[opensos:debug] lock ACQUIRED", { id, name });
+    // #endregion
+    try {
+      const r = await fn();
+      // #region agent log
+      console.log("[opensos:debug] lock fn DONE", { id, name });
+      // #endregion
+      return r;
+    } catch (e) {
+      // #region agent log
+      console.error("[opensos:debug] lock fn THREW", { id, name, err: e });
+      // #endregion
+      throw e;
+    }
+  });
   _locks[name] = current;
   return current;
 }
