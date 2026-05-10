@@ -25,7 +25,7 @@ export function renderRoute(route: RouteInfo): void {
       lastTeardown = renderPinsNewScreen(root) ?? undefined;
       break;
     case "pinDetail":
-      renderPinDetailScreen(root, route.id);
+      lastTeardown = renderPinDetailScreen(root, route.id);
       break;
     case "auth":
       lastTeardown = renderAuthScreen(root);

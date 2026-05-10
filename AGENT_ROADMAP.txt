@@ -28,15 +28,15 @@ Phase 1 — Frontend skeleton + operational map (Vercel-ready)
 [x] Prompt: "Bootstrap frontend per specs/06-frontend-architecture.md: Vite+TS+Tailwind, folder structure, Mapbox setup."
 [x] Prompt: "Implement `/` Map screen with clustering, bbox loading, debounce/cancel and v1 filters per specs/03-map-spec.md."
 [x] Prompt: "Add pin detail modal UI (read-only first) consuming GET /pins/:id."  // Slide-over modal on `/` loads pin_detail RPC + matches.
-[ ] Prompt: "Deep link `/pins/:id`: same UX as map modal per specs/12 (replace PinDetailScreen placeholder)."
+[x] Prompt: "Deep link `/pins/:id`: same UX as map modal per specs/12 (replace PinDetailScreen placeholder)."
 [ ] Prompt: "Optional: `GET /events` client + map event selector (specs/12 global layout; MapFilters eventId wired but no UI yet)."
 
 Phase 2 — Domain + typed API layer (avoid breakage)
 ----------------------------------------------------
 [x] Prompt: "Define TS types in src/domain/ matching specs/02-data-model.md and specs/05-api-contracts.md (Pin, PinItem, Match, MatchItem, Event)."
 [x] Prompt: "Implement src/api/ typed client functions for the endpoints in specs/05-api-contracts.md."
-      (reads: pins_bbox + pin_detail via RPC; matches read/write helpers in matches.ts.
-       Still missing typed clients/UI for: POST /reports, GET /events, assignments, PATCH /pins/:id/status unless deferred.)
+      (reads: pins_bbox + pin_detail via RPC; matches read/write helpers in matches.ts; POST /reports in reports.ts.
+       Still missing typed clients/UI for: GET /events, assignments, PATCH /pins/:id/status unless deferred.)
 
 Phase 3 — Auth (minimum viable)
 --------------------------------
@@ -46,19 +46,18 @@ Phase 3 — Auth (minimum viable)
 Phase 4 — Create pin (need/offer)
 ---------------------------------
 [x] Prompt: "Implement /pins/new with form + map location picker + items list; call POST /pins."
-[ ] Prompt: "After create: `/pins/:id` must show real pin detail (or map+modal); today redirect hits placeholder PinDetailScreen — tie to specs/12."
+[x] Prompt: "After create: `/pins/:id` must show real pin detail (or map+modal); today redirect hits placeholder PinDetailScreen — tie to specs/12."
 
 Phase 5 — Matching + partial progress (core)
 ---------------------------------------------
-[ ] Prompt: "In pin detail modal, wire Create match (POST /matches) UI (need↔offer, items) using createMatch in src/api/matches.ts."
-      (Implementation: `createMatch()` exists in src/api/matches.ts; not connected from PinDetailModal yet.)
+[x] Prompt: "In pin detail modal, wire Create match (POST /matches) UI (need↔offer, items) using createMatch in src/api/matches.ts."
 [x] Prompt: "Update match status (PATCH equiv. via supabase update) from pin detail for existing matches."
 [x] Prompt: "Compute and render per-item coverage using fetched matches for pin (same rules as GET /pins/:id/matches in specs/02-data-model.md)."
 [x] Prompt: "Show is_being_handled and active_match_count from match_summary."
 
 Phase 6 — Reports + minimal moderation
 ---------------------------------------
-[ ] Prompt: "Add 'Report pin' action (POST /reports) in the pin detail modal."
+[x] Prompt: "Add 'Report pin' action (POST /reports) in the pin detail modal."
 [ ] Prompt (optional v1): "If admin-only view is desired, add a minimal reports list screen (only if we expose it)."
 
 Phase 7 — Supabase backend as code (prepare now, execute later)
@@ -87,3 +86,5 @@ Format: YYYY-MM-DD | Phase | what was verified (agent/creator)
 - 2026-05-07 | Phase 4 | agent: Create pin screen — /pins/new with type/title/description form, Mapbox location picker with marker, dynamic items list, POST /pins via supabase-js (insert pins + pin_items). After create redirects to /pins/:id. Auth guard on route. `npm run build` OK.
 - 2026-05-07 | Phase 5 | agent: Matching — src/api/matches.ts (createMatch, updateMatchStatus, fetchMatchesForPin via supabase-js). Pin detail modal: shows matches list with status actions (proposed→confirmed→in_transit→delivered/cancelled), per-item coverage bars for needs (covered_qty/requested_qty %), is_being_handled + active_match_count. `npm run build` OK.
 - 2026-05-10 | agent | Roadmap audit: corrected Phase 4/5 checkboxes — create-match UI still open; `/pins/:id` deep link + events selector open; Phase 2 note lists remaining API/UI gaps.
+- 2026-05-10 | Phase 1+4+6 | agent: Deep link `/pins/:id` — full-page detail screen using shared rendering (pinDetailRendering.ts), same data/actions as slide-over modal, teardown wired in router. Report pin — src/api/reports.ts (createReport via supabase-js), inline report form in pin detail (modal + deep-link screen), reason dropdown + details. Shared rendering extracted from PinDetailModal. `npm run build` OK.
+- 2026-05-10 | Phase 5 | agent: Create match UI — "Create match" button on need pin detail (modal + screen). Dropdown fetches available offers (fetchAvailableOffers in src/api/pins.ts, type=offer, status open/assigned, limit 50, optional event filter). Per-item quantity inputs, note field. Calls createMatch() on submit, reloads pin detail. wireCreateMatchAction() in pinDetailRendering.ts. `npm run build` OK.
