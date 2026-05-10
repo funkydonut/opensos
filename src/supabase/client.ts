@@ -31,10 +31,16 @@ export function getSupabaseClient(): SupabaseClient | null {
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() ?? "";
   if (!url || !anonKey) {
     cached = null;
+    // #region agent log
+    console.log("[opensos:debug] supabase client NULL", { hasUrl: !!url, hasKey: !!anonKey });
+    // #endregion
     return null;
   }
   cached = createClient(url, anonKey, {
     auth: { lock: processLock },
   });
+  // #region agent log
+  console.log("[opensos:debug] supabase client created", { urlPrefix: url.slice(0, 30), keyLen: anonKey.length, lockSet: true });
+  // #endregion
   return cached;
 }

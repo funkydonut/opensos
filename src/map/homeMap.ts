@@ -168,6 +168,14 @@ export function mountHomeMap(
       inFlight = null;
       renderPins(pins);
     } catch (err) {
+      // #region agent log
+      console.error("[opensos:debug] homeMap fetchForCurrentView CATCH", {
+        name: (err as { name?: string } | null)?.name,
+        message: (err as { message?: string } | null)?.message,
+        destroyed,
+        err,
+      });
+      // #endregion
       if ((err as { name?: string } | null)?.name === "AbortError") return;
       if (destroyed) return;
       inFlight = null;

@@ -62,6 +62,10 @@ export async function fetchPinsByBbox(params: FetchPinsParams): Promise<PinListI
   if (params.status?.length) rpcParams.pin_status = params.status;
   if (params.eventId) rpcParams.event_id = params.eventId;
 
+  // #region agent log
+  console.log("[opensos:debug] pins_in_bbox start", { bbox: params.bbox.slice(0, 60), statuses: params.status });
+  // #endregion
+
   const promise = client.rpc("pins_in_bbox", rpcParams);
 
   const onAbort = () => {
@@ -70,8 +74,25 @@ export async function fetchPinsByBbox(params: FetchPinsParams): Promise<PinListI
   };
   params.signal?.addEventListener("abort", onAbort, { once: true });
 
-  const { data, error } = await promise;
+  let data: unknown, error: { message?: string; code?: string; details?: string; hint?: string } | null;
+  try {
+    const res = await promise;
+    data = res.data;
+    error = res.error;
+  } catch (e) {
+    // #region agent log
+    console.error("[opensos:debug] pins_in_bbox THREW", e);
+    // #endregion
+    throw e;
+  }
   params.signal?.removeEventListener("abort", onAbort);
+
+  // #region agent log
+  console.log("[opensos:debug] pins_in_bbox done", {
+    rowCount: Array.isArray(data) ? (data as unknown[]).length : 0,
+    error: error ? { message: error.message, code: error.code, details: error.details, hint: error.hint } : null,
+  });
+  // #endregion
 
   if (params.signal?.aborted) {
     throw new DOMException("Aborted", "AbortError");
