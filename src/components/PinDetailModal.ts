@@ -8,6 +8,7 @@ import {
   wireMatchActions,
   wireCreateMatchAction,
   wireReportAction,
+  wireIdCopyButtons,
 } from "./pinDetailRendering";
 
 export interface PinDetailModalHandle {
@@ -79,6 +80,7 @@ export function mountPinDetailModal(container: HTMLElement): PinDetailModalHandl
       wireMatchActions(panel, () => void loadPin(pinId));
       wireCreateMatchAction(panel, pin, () => void loadPin(pinId));
       wireReportAction(panel, pinId);
+      wireIdCopyButtons(panel);
     } catch {
       if (currentPinId !== pinId) return;
       panel.innerHTML = renderError("Failed to load pin.");

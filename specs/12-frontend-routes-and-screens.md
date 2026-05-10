@@ -35,6 +35,7 @@ This spec defines the minimum UI surface for a v1 production release. It is opti
   - `GET /pins/:id/matches`
 - **UI**:
   - Show items and match summary (being handled, active match count)
+  - Show the current pin UUID as a copyable `Need ID` or `Offer ID` chip so operators can identify pins precisely.
   - If pin is a need: show coverage per item (covered vs requested)
   - Actions (auth-gated):
     - create a match (connect to an offer):
@@ -44,7 +45,7 @@ This spec defines the minimum UI surface for a v1 production release. It is opti
       - Client validates that requested quantity does not exceed available before submit.
     - update match status (confirmed → in_transit → delivered or cancel)
     - report pin
-  - Matches list shows the offer title and per-item breakdown (need item, offer item, quantity) for each match.
+  - Matches list shows the offer title, copyable `Match` ID, copyable `Offer` pin ID, and per-item breakdown (need item, offer item, quantity) for each match.
 
 ### `/auth`
 **Sign in**

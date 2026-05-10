@@ -8,6 +8,7 @@ import {
   wireMatchActions,
   wireCreateMatchAction,
   wireReportAction,
+  wireIdCopyButtons,
 } from "../components/pinDetailRendering";
 import { navigate } from "../utils/router";
 
@@ -53,6 +54,7 @@ export function renderPinDetailScreen(root: HTMLElement, pinId: string): () => v
       wireMatchActions(card, () => void loadPin());
       wireCreateMatchAction(card, pin, () => void loadPin());
       wireReportAction(card, pinId);
+      wireIdCopyButtons(card);
     } catch {
       if (cancelled) return;
       card.innerHTML = renderError("Failed to load pin.", "Back to map");

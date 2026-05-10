@@ -12,6 +12,19 @@ export function esc(s: string): string {
     .replaceAll('"', "&quot;");
 }
 
+/**
+ * Renders a clickable chip showing `<label>: <id>` that copies the full id
+ * to the clipboard when clicked. Pair with `wireIdCopyButtons` to enable.
+ */
+function renderIdChip(label: string, id: string): string {
+  return `<button type="button" data-copy-id="${esc(id)}"
+    class="inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-500 hover:bg-slate-200 hover:text-slate-700"
+    title="Click to copy ${esc(id)}">
+    <span class="font-sans font-medium">${esc(label)}:</span>
+    <span>${esc(id)}</span>
+  </button>`;
+}
+
 export function renderLoading(): string {
   return `
     <div class="flex h-full items-center justify-center">
@@ -137,12 +150,15 @@ export function renderDetailHtml(
       </button>`
     : "";
 
+  const pinIdLabel = pin.type === "need" ? "Need ID" : "Offer ID";
+
   return `
     <div class="flex h-full flex-col">
       <header class="flex items-start justify-between border-b border-slate-200 p-4">
         <div class="space-y-1">
           <h2 class="text-lg font-semibold text-slate-900">${esc(pin.title)}</h2>
-          <div class="flex items-center gap-2">${typeBadge} ${statusBadge}</div>
+          <div class="flex flex-wrap items-center gap-2">${typeBadge} ${statusBadge}</div>
+          <div class="pt-1">${renderIdChip(pinIdLabel, pin.id)}</div>
         </div>
         ${closeBtn}
       </header>
@@ -264,6 +280,10 @@ function renderMatches(matches: MatchWithItems[], isLoggedIn: boolean, needItems
             <span class="${statusColor} font-medium">${esc(m.status)}</span>
             ${offerLabel}
           </div>
+          <div class="mt-1 flex flex-wrap gap-1">
+            ${renderIdChip("Match", m.id)}
+            ${renderIdChip("Offer", m.offer_pin_id)}
+          </div>
           ${itemRows}
           ${m.note ? `<p class="mt-1 text-slate-400 italic">${esc(m.note)}</p>` : ""}
           ${actionsHtml}
@@ -276,6 +296,29 @@ function renderMatches(matches: MatchWithItems[], isLoggedIn: boolean, needItems
       <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Matches</h3>
       <div class="mt-2 space-y-2">${rows}</div>
     </div>`;
+}
+
+/**
+ * Wire `[data-copy-id]` chips to copy their full id to the clipboard
+ * on click and briefly show a "Copied" confirmation.
+ */
+export function wireIdCopyButtons(el: HTMLElement): void {
+  el.querySelectorAll<HTMLButtonElement>("[data-copy-id]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-copy-id") ?? "";
+      if (!id) return;
+      try {
+        await navigator.clipboard.writeText(id);
+      } catch {
+        return;
+      }
+      const original = btn.innerHTML;
+      btn.innerHTML = `<span class="font-sans font-medium text-green-700">Copied</span>`;
+      window.setTimeout(() => {
+        btn.innerHTML = original;
+      }, 1200);
+    });
+  });
 }
 
 /**
