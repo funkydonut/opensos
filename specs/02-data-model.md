@@ -123,10 +123,15 @@ Matching + fulfillment (v1 operational semantics):
   - `cancelled`: match is no longer active and should not count toward coverage.
 - Item-level coverage:
   - `pin_match_items` represents the quantity for a given need item that an offer (or a generic offer) is covering.
+  - `offer_pin_item_id` should be populated when creating a match to enable per-item tracking on the offer side.
   - For simplicity in v1, `pin_match_items.unit` must match the corresponding `need` item unit.
 - Derived UI signals (do not store in DB; compute):
   - `need.is_being_handled = true` if it has ≥ 1 match with `status ∈ {confirmed, in_transit, delivered}`.
   - Per-need-item coverage:
     - For each `need` item, `covered_quantity = SUM(pin_match_items.quantity)` over matches with `status ∈ {confirmed, in_transit, delivered}`.
     - `coverage_ratio = min(covered_quantity / requested_quantity, 1.0)`.
+  - Per-offer-item committed quantity:
+    - For each `offer` item, `committed_quantity = SUM(pin_match_items.quantity)` where `offer_pin_item_id = <item_id>` and match `status ∈ {confirmed, in_transit, delivered}`.
+    - `available_quantity = pin_items.quantity - committed_quantity`. This is derived (not stored).
+    - The create-match UI should display available quantities and prevent over-commitment.
   - Overall need coverage (optional UI): average of item coverage ratios, or show per-item only.

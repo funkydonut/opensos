@@ -37,9 +37,14 @@ This spec defines the minimum UI surface for a v1 production release. It is opti
   - Show items and match summary (being handled, active match count)
   - If pin is a need: show coverage per item (covered vs requested)
   - Actions (auth-gated):
-    - create a match (connect to an offer)
+    - create a match (connect to an offer):
+      - Selecting an offer shows its items with total, committed, and available quantities.
+      - Each need item has a dropdown to manually map to a specific offer item.
+      - Quantity inputs are capped at `min(need_remaining, offer_available)`.
+      - Client validates that requested quantity does not exceed available before submit.
     - update match status (confirmed → in_transit → delivered or cancel)
     - report pin
+  - Matches list shows the offer title and per-item breakdown (need item, offer item, quantity) for each match.
 
 ### `/auth`
 **Sign in**

@@ -37,6 +37,42 @@ export interface MatchItemRow {
 
 export interface MatchWithItems extends MatchRow {
   items: MatchItemRow[];
+  offer_pin_title?: string;
+}
+
+/**
+ * Fetch committed quantities for each offer item across active matches.
+ * Returns a map of offer_pin_item_id → total committed quantity.
+ */
+export async function fetchCommittedForOffer(
+  offerPinId: string,
+): Promise<Map<string, number>> {
+  const client = getSupabaseClient();
+  const result = new Map<string, number>();
+  if (!client) return result;
+
+  const { data: matches } = await client
+    .from("pin_matches")
+    .select("id")
+    .eq("offer_pin_id", offerPinId)
+    .in("status", ["confirmed", "in_transit", "delivered"]);
+
+  if (!matches || matches.length === 0) return result;
+
+  const matchIds = (matches as Array<{ id: string }>).map((m) => m.id);
+
+  const { data: items } = await client
+    .from("pin_match_items")
+    .select("offer_pin_item_id, quantity")
+    .in("pin_match_id", matchIds)
+    .not("offer_pin_item_id", "is", null);
+
+  for (const row of (items ?? []) as Array<{ offer_pin_item_id: string; quantity: number }>) {
+    const prev = result.get(row.offer_pin_item_id) ?? 0;
+    result.set(row.offer_pin_item_id, prev + Number(row.quantity));
+  }
+
+  return result;
 }
 
 /** Fetch non-cancelled matches for a pin (GET /pins/:id/matches). */
@@ -68,9 +104,22 @@ export async function fetchMatchesForPin(pinId: string): Promise<MatchWithItems[
     itemsByMatch.set(item.pin_match_id, list);
   }
 
+  const offerPinIds = [...new Set((matches as MatchRow[]).map((m) => m.offer_pin_id))];
+  const titleMap = new Map<string, string>();
+  if (offerPinIds.length > 0) {
+    const { data: pins } = await client
+      .from("pins")
+      .select("id, title")
+      .in("id", offerPinIds);
+    for (const p of (pins ?? []) as Array<{ id: string; title: string }>) {
+      titleMap.set(p.id, p.title);
+    }
+  }
+
   return (matches as MatchRow[]).map((m) => ({
     ...m,
     items: itemsByMatch.get(m.id) ?? [],
+    offer_pin_title: titleMap.get(m.offer_pin_id),
   }));
 }
 

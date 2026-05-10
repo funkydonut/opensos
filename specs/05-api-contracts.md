@@ -149,6 +149,9 @@ Body:
   ],
   "note": "Optional note"
 }
+Notes:
+- `offer_pin_item_id` is expected (not optional) when the offer has typed items; it enables per-item tracking on the offer side.
+- The client should validate that the requested quantity does not exceed the offer item's available quantity (total - committed across active matches).
 Response (201):
 { "id": "uuid" }
 Status codes:
@@ -177,6 +180,7 @@ Response:
     "id": "uuid",
     "need_pin_id": "uuid",
     "offer_pin_id": "uuid",
+    "offer_pin_title": "string",
     "status": "confirmed",
     "items": [
       { "need_pin_item_id": "uuid", "offer_pin_item_id": "uuid", "quantity": 30, "unit": "liters" }
@@ -189,6 +193,7 @@ Status codes:
 
 Notes:
 - Matches returned should include only non-cancelled matches by default (v1). If needed later, add `include_cancelled=true`.
+- `offer_pin_title` is included for display purposes so the UI can identify which offer covers each match without an extra lookup.
 
 POST /assignments
 Auth: required
