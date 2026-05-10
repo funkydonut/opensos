@@ -52,23 +52,13 @@ export function initAuth(): void {
     return;
   }
 
-  // #region agent log
-  console.log("[opensos:debug] initAuth: calling getSession");
-  // #endregion
   client.auth.getSession().then(async ({ data: { session } }) => {
-    // #region agent log
-    console.log("[opensos:debug] initAuth: getSession resolved", { hasSession: !!session });
-    // #endregion
     if (session?.user) {
       const role = await fetchRole(session.user.id);
       set({ session, user: session.user, role, loading: false });
     } else {
       set({ session: null, user: null, role: null, loading: false });
     }
-  }).catch((err) => {
-    // #region agent log
-    console.error("[opensos:debug] initAuth: getSession REJECTED", err);
-    // #endregion
   });
 
   client.auth.onAuthStateChange(async (_event, session) => {

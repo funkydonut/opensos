@@ -8,34 +8,13 @@ let cached: SupabaseClient | null | undefined;
  * due to auth token refresh steal cascades in supabase-js.
  */
 const _locks: Record<string, Promise<unknown>> = {};
-let _lockSeq = 0;
 function processLock<R>(
   name: string,
   _acquireTimeout: number,
   fn: () => Promise<R>,
 ): Promise<R> {
-  const id = ++_lockSeq;
-  // #region agent log
-  console.log("[opensos:debug] lock REQUEST", { id, name, hasPrev: !!_locks[name] });
-  // #endregion
   const prev = _locks[name] ?? Promise.resolve();
-  const current = prev.catch(() => {}).then(async () => {
-    // #region agent log
-    console.log("[opensos:debug] lock ACQUIRED", { id, name });
-    // #endregion
-    try {
-      const r = await fn();
-      // #region agent log
-      console.log("[opensos:debug] lock fn DONE", { id, name });
-      // #endregion
-      return r;
-    } catch (e) {
-      // #region agent log
-      console.error("[opensos:debug] lock fn THREW", { id, name, err: e });
-      // #endregion
-      throw e;
-    }
-  });
+  const current = prev.catch(() => {}).then(() => fn());
   _locks[name] = current;
   return current;
 }
@@ -52,16 +31,10 @@ export function getSupabaseClient(): SupabaseClient | null {
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() ?? "";
   if (!url || !anonKey) {
     cached = null;
-    // #region agent log
-    console.log("[opensos:debug] supabase client NULL", { hasUrl: !!url, hasKey: !!anonKey });
-    // #endregion
     return null;
   }
   cached = createClient(url, anonKey, {
     auth: { lock: processLock },
   });
-  // #region agent log
-  console.log("[opensos:debug] supabase client created", { urlPrefix: url.slice(0, 30), keyLen: anonKey.length, lockSet: true });
-  // #endregion
   return cached;
 }
