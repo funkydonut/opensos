@@ -27,13 +27,16 @@ Phase 1 — Frontend skeleton + operational map (Vercel-ready)
 -------------------------------------------------------------
 [x] Prompt: "Bootstrap frontend per specs/06-frontend-architecture.md: Vite+TS+Tailwind, folder structure, Mapbox setup."
 [x] Prompt: "Implement `/` Map screen with clustering, bbox loading, debounce/cancel and v1 filters per specs/03-map-spec.md."
-[x] Prompt: "Add pin detail modal UI (read-only first) consuming GET /pins/:id."
+[x] Prompt: "Add pin detail modal UI (read-only first) consuming GET /pins/:id."  // Slide-over modal on `/` loads pin_detail RPC + matches.
+[ ] Prompt: "Deep link `/pins/:id`: same UX as map modal per specs/12 (replace PinDetailScreen placeholder)."
+[ ] Prompt: "Optional: `GET /events` client + map event selector (specs/12 global layout; MapFilters eventId wired but no UI yet)."
 
 Phase 2 — Domain + typed API layer (avoid breakage)
 ----------------------------------------------------
 [x] Prompt: "Define TS types in src/domain/ matching specs/02-data-model.md and specs/05-api-contracts.md (Pin, PinItem, Match, MatchItem, Event)."
 [x] Prompt: "Implement src/api/ typed client functions for the endpoints in specs/05-api-contracts.md."
-      (Read endpoints wired via supabase.rpc; write endpoints land in Phase 4/5.)
+      (reads: pins_bbox + pin_detail via RPC; matches read/write helpers in matches.ts.
+       Still missing typed clients/UI for: POST /reports, GET /events, assignments, PATCH /pins/:id/status unless deferred.)
 
 Phase 3 — Auth (minimum viable)
 --------------------------------
@@ -43,12 +46,14 @@ Phase 3 — Auth (minimum viable)
 Phase 4 — Create pin (need/offer)
 ---------------------------------
 [x] Prompt: "Implement /pins/new with form + map location picker + items list; call POST /pins."
-[x] Prompt: "After create, redirect to /pins/:id and refresh the map."
+[ ] Prompt: "After create: `/pins/:id` must show real pin detail (or map+modal); today redirect hits placeholder PinDetailScreen — tie to specs/12."
 
 Phase 5 — Matching + partial progress (core)
 ---------------------------------------------
-[x] Prompt: "In pin detail, implement Create match (POST /matches) and Update match status (PATCH /matches/:id)."
-[x] Prompt: "Compute and render per-item coverage using GET /pins/:id/matches (rules in specs/02-data-model.md)."
+[ ] Prompt: "In pin detail modal, wire Create match (POST /matches) UI (need↔offer, items) using createMatch in src/api/matches.ts."
+      (Implementation: `createMatch()` exists in src/api/matches.ts; not connected from PinDetailModal yet.)
+[x] Prompt: "Update match status (PATCH equiv. via supabase update) from pin detail for existing matches."
+[x] Prompt: "Compute and render per-item coverage using fetched matches for pin (same rules as GET /pins/:id/matches in specs/02-data-model.md)."
 [x] Prompt: "Show is_being_handled and active_match_count from match_summary."
 
 Phase 6 — Reports + minimal moderation
@@ -81,3 +86,4 @@ Format: YYYY-MM-DD | Phase | what was verified (agent/creator)
 - 2026-05-07 | Phase 3 | agent: Auth email+password via Supabase — src/auth/state.ts (session+role), /auth screen (sign in/up forms), session persistence via onAuthStateChange, nav bar shows user email+role+sign out when logged in, "New pin" hidden for anonymous, /pins/new redirects to /auth if not logged in. `npm run build` OK.
 - 2026-05-07 | Phase 4 | agent: Create pin screen — /pins/new with type/title/description form, Mapbox location picker with marker, dynamic items list, POST /pins via supabase-js (insert pins + pin_items). After create redirects to /pins/:id. Auth guard on route. `npm run build` OK.
 - 2026-05-07 | Phase 5 | agent: Matching — src/api/matches.ts (createMatch, updateMatchStatus, fetchMatchesForPin via supabase-js). Pin detail modal: shows matches list with status actions (proposed→confirmed→in_transit→delivered/cancelled), per-item coverage bars for needs (covered_qty/requested_qty %), is_being_handled + active_match_count. `npm run build` OK.
+- 2026-05-10 | agent | Roadmap audit: corrected Phase 4/5 checkboxes — create-match UI still open; `/pins/:id` deep link + events selector open; Phase 2 note lists remaining API/UI gaps.

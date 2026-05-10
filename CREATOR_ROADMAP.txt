@@ -30,8 +30,8 @@ Cross-reference
 SECTION A — Accounts & projects (creator only)
 ================================================================================
 
-[ ] A1. Create or open Supabase project (production).
-[ ] A2. Create or open Vercel project linked to this repo (or import Git repo).
+[x] A1. Create or open Supabase project (production).
+[x] A2. Create or open Vercel project linked to this repo (or import Git repo).
 [x] A3. Register Mapbox account and create a public access token (`pk.…`) for the map
         (see VITE_MAPBOX_TOKEN in specs/08-deployment.md).
         Mapbox naming (recommended): in the Mapbox dashboard, rename the token to something
@@ -52,12 +52,12 @@ Agent can verify (after you say it is done):
 SECTION B — Supabase dashboard (creator runs migrations / settings)
 ================================================================================
 
-[ ] B1. Enable PostGIS extension on the database (if not already).
-[ ] B2. Apply SQL migrations the agent provides (schema per specs/11-db-schema-reference.md).
-[ ] B3. Apply RLS policies the agent provides (specs/10-rls-policies.md).
-[ ] B4. Configure Auth provider for MVP (email/password OR magic link — pick one).
-[ ] B5. Set allowed redirect URLs / Site URL for your Vercel domain (when known).
-[ ] B6. Configure CORS / allowed origins for your production frontend URL.
+[x] B1. Enable PostGIS extension on the database (if not already).
+[x] B2. Apply SQL migrations the agent provides (schema per specs/11-db-schema-reference.md).
+[x] B3. Apply RLS policies the agent provides (specs/10-rls-policies.md).
+[x] B4. Configure Auth provider for MVP (email/password OR magic link — pick one).
+[x] B5. Set allowed redirect URLs / Site URL for your Vercel domain (when known).
+[x] B6. Configure CORS / allowed origins for your production frontend URL.
 
 Agent can verify:
 [x] AV-B1. Agent runs or documents `npm run build` against repo with your .env (you paste locally, never commit).
@@ -68,14 +68,14 @@ Agent can verify:
 SECTION C — Vercel / hosting (creator)
 ================================================================================
 
-[ ] C1. Add environment variables in Vercel project settings:
+[x] C1. Add environment variables in Vercel project settings:
         VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_MAPBOX_TOKEN
         (see specs/08-deployment.md)
-[ ] C2. Trigger first production deploy (or connect Git auto-deploy).
-[ ] C3. (Optional) Attach custom domain; update Supabase Auth URLs accordingly.
+[x] C2. Trigger first production deploy (or connect Git auto-deploy).
+[x] C3. (Optional) Attach custom domain; update Supabase Auth URLs accordingly.
 
 Agent can verify:
-[ ] AV-C1. Agent confirms README and .env.example list all required VITE_* vars.
+[x] AV-C1. Agent confirms README and .env.example list all required VITE_* vars.
 
 
 ================================================================================
@@ -96,7 +96,7 @@ SECTION E — Product / legal (creator judgment)
 ================================================================================
 
 [ ] E1. Confirm public read of pins/events/matches is acceptable for v1 (per specs/05-api-contracts.md).
-[ ] E2. Decide MVP auth method if not already fixed (email vs magic link).
+[x] E2. Decide MVP auth method if not already fixed (email vs magic link).  // MVP: email+password
 
 Agent can verify:
 [x] AV-E1. Agent confirms UI matches chosen auth method only (email+password, no dual path).
@@ -106,9 +106,10 @@ Agent can verify:
 SECTION F — Go-live smoke test (creator in browser)
 ================================================================================
 
-[ ] F1. Open production URL; map loads or shows clear placeholder if token missing.
-[ ] F2. Sign in works (after Auth configured).
-[ ] F3. Create pin → appears on map → open detail → create match (happy path).
+[x] F1. Open production URL; map loads or shows clear placeholder if token missing.
+[x] F2. Sign in works (after Auth configured).
+[ ] F3. Full happy path: create pin → appears on map → open detail → **create match** → partial fulfillment.
+        (Pending: create-match UI + deep link `/pins/:id` same as modal — see AGENT_ROADMAP gaps.)
 
 Agent can verify (after automated or scripted checks if added later):
 [ ] AV-F1. Agent documents steps from specs/13-seed-data-and-demo-scenario.md match current UI.
@@ -121,6 +122,7 @@ Format: YYYY-MM-DD | who (creator/agent) | what was verified or done
 - 2026-05-03 | agent | CREATOR_ROADMAP: Mapbox guidance — rename token in dashboard (e.g. opensos-dev-unrestricted), optional second prod token with URL allowlist, checklist A4 + D3 before prod.
 - 2026-05-07 | agent | AV-A1 verified: no secrets in repo. AV-B1: build green. AV-B2: RLS enabled on all public tables (migration applied). AV-D1: grep clean. AV-E1: auth is email+password only.
 - 2026-05-07 | agent | Phase 3 auth implemented: /auth screen (sign in/up), session persistence, nav bar auth-aware, route guard on /pins/new.
+- 2026-05-10 | agent | Roadmap sync: AV-C1, E2, F1, F2 marked done. F3 left open (create match UI + /pins/:id parity). A4/D1–D3/E1 remain creator judgment.
 
 
 ================================================================================
