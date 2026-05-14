@@ -6,11 +6,6 @@ import type {
 import type { Feature, FeatureCollection, Point } from "geojson";
 
 import type { PinListItem, PinStatus, PinType } from "../domain/types";
-import {
-  pinColorExpression,
-  pinOpacityExpression,
-  pinStrokeWidthExpression,
-} from "./mapEncoding";
 
 export const PINS_SOURCE_ID = "pins";
 export const CLUSTERS_LAYER_ID = "pins-clusters";
@@ -102,17 +97,27 @@ export function addPinsLayers(map: MapboxMap): void {
     },
   });
 
+  const dimStatuses = ["delivered", "resolved", "expired", "flagged"];
+
   map.addLayer({
     id: UNCLUSTERED_LAYER_ID,
-    type: "circle",
+    type: "symbol",
     source: PINS_SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
-    paint: {
-      "circle-color": pinColorExpression,
-      "circle-opacity": pinOpacityExpression,
-      "circle-radius": 7,
-      "circle-stroke-color": "#0f172a",
-      "circle-stroke-width": pinStrokeWidthExpression,
+    layout: {
+      "icon-image": [
+        "match",
+        ["get", "type"],
+        "need",
+        ["match", ["get", "status"], dimStatuses, "pin-need-dim", "pin-need"],
+        "offer",
+        ["match", ["get", "status"], dimStatuses, "pin-offer-dim", "pin-offer"],
+        "pin-need",
+      ],
+      "icon-size": 0.52,
+      "icon-anchor": "bottom",
+      "icon-allow-overlap": true,
+      "icon-ignore-placement": true,
     },
   });
 }

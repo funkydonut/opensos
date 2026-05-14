@@ -18,6 +18,7 @@ import {
   addPinsLayers,
   setPinsData,
 } from "./pinsLayer";
+import { registerPinImages } from "./pinIcon";
 
 const MADRID_FALLBACK: LngLatLike = [-3.7038, 40.4168];
 const DEFAULT_ZOOM = 12;
@@ -245,6 +246,7 @@ export function mountHomeMap(
 
   map.on("load", () => {
     if (destroyed) return;
+    registerPinImages(map);
     addPinsLayers(map);
 
     map.on("click", CLUSTERS_LAYER_ID, handleClusterClick);
