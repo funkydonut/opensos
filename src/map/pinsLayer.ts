@@ -114,7 +114,7 @@ export function addPinsLayers(map: MapboxMap): void {
         ["match", ["get", "status"], dimStatuses, "pin-offer-dim", "pin-offer"],
         "pin-need",
       ],
-      "icon-size": 0.52,
+      "icon-size": 0.85,
       "icon-anchor": "bottom",
       "icon-allow-overlap": true,
       "icon-ignore-placement": true,

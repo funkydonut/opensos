@@ -1,14 +1,14 @@
 import type { Map as MapboxMap } from "mapbox-gl";
 
-const PIN_SIZE = 80; // internal canvas px; rendered at pixelRatio:2 → crisp on HiDPI
+const PIN_SIZE = 96; // internal canvas px; rendered at pixelRatio:2 → crisp on HiDPI
 
 /**
  * Draws a teardrop-shaped map pin on `ctx`.
  *
- * Layout (all in canvas units):
- *   - circular head centred at (cx, headCy)
- *   - two bezier curves taper to a sharp tip at (cx, tipY)
- *   - icon emoji centred inside the head circle
+ * Geometry: a circular head plus two straight edges tangent to the head
+ * that meet at a sharp tip. Using tangent points (instead of beziers
+ * eyeballed from outside the circle) guarantees a clean, symmetric shape
+ * with no kinks where the head joins the tail.
  */
 function drawPin(
   ctx: CanvasRenderingContext2D,
@@ -18,10 +18,19 @@ function drawPin(
   dimmed: boolean,
 ): void {
   const cx = size / 2;
-  const headR = size * 0.30;       // radius of the circular head
-  const headCy = size * 0.34;      // vertical centre of the head
-  const tipY = size * 0.91;        // tip of the pin
-  const shoulderX = headR * 0.92;  // how wide the "shoulders" are before the taper
+  const headR = size * 0.31;
+  const headCy = size * 0.34;
+  const tipY = size * 0.94;
+
+  // Angle (from positive x-axis, measured downward in canvas coords) at which
+  // a straight line from the tip is tangent to the head circle.
+  const d = tipY - headCy;
+  const sinT = headR / d;
+  const cosT = Math.sqrt(1 - sinT * sinT);
+  const theta = Math.asin(sinT);
+
+  const rightTanX = cx + headR * cosT;
+  const rightTanY = headCy + headR * sinT;
 
   // Drop shadow
   ctx.shadowColor = "rgba(0,0,0,0.40)";
@@ -29,16 +38,13 @@ function drawPin(
   ctx.shadowOffsetY = size * 0.05;
   ctx.shadowOffsetX = 0;
 
-  // ── Pin silhouette ──────────────────────────────────────────────────────────
   ctx.beginPath();
-  // Start at the bottom-left of the head circle (angle 135° = top-left quadrant)
-  const startAngle = Math.PI * 0.72;
-  const endAngle = Math.PI * 0.28;
-  ctx.arc(cx, headCy, headR, startAngle, endAngle); // clockwise arc across the top
-  // Right shoulder → tip
-  ctx.quadraticCurveTo(cx + shoulderX, headCy + headR * 1.55, cx, tipY);
-  // Tip → left shoulder (closing)
-  ctx.quadraticCurveTo(cx - shoulderX, headCy + headR * 1.55, cx, headCy + headR * Math.sin(startAngle) + headCy);
+  ctx.moveTo(cx, tipY);
+  ctx.lineTo(rightTanX, rightTanY);
+  // Arc anticlockwise from right tangent through the TOP of the head circle
+  // to the left tangent (canvas y grows downward, so anticlockwise sweeps up).
+  ctx.arc(cx, headCy, headR, theta, Math.PI - theta, true);
+  ctx.lineTo(cx, tipY);
   ctx.closePath();
 
   const alpha = dimmed ? 0.45 : 1.0;
@@ -46,18 +52,15 @@ function drawPin(
   ctx.fillStyle = fillColor;
   ctx.fill();
 
-  // ── White border ────────────────────────────────────────────────────────────
   ctx.shadowColor = "transparent";
   ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = size * 0.072;
+  ctx.lineWidth = size * 0.07;
   ctx.stroke();
 
-  // ── Emoji icon ──────────────────────────────────────────────────────────────
-  ctx.font = `${Math.round(size * 0.28)}px sans-serif`;
+  ctx.font = `${Math.round(size * 0.30)}px sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  // Slight nudge upward so the emoji sits visually centred in the circle head
-  ctx.fillText(emoji, cx, headCy + size * 0.012);
+  ctx.fillText(emoji, cx, headCy);
 
   ctx.globalAlpha = 1.0;
 }
